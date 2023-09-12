@@ -3,6 +3,7 @@
 
 // init project
 var express = require('express');
+const timestamp = require('unix-timestamp')
 var app = express();
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
@@ -20,12 +21,45 @@ app.get("/", function (req, res) {
 
 
 // your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
-});
 
-
-
+app.get("/api/:date?",(req,res)=>{
+  if(!req.params.date){
+    let date=new Date()
+    const unix = Date.parse(date)
+    const utc = date.toUTCString()
+    res.send({unix,utc})
+    res.end()
+    return;
+  }
+  else{
+    let unix = req.params.date
+    if(isNaN(unix)==false){
+      unix = parseInt(unix)
+    let utc = new Date(parseInt(unix))
+    utc = utc.toUTCString()
+    res.send({unix , utc})
+    res.end()
+    return;
+    }
+    else{
+      const date = new Date(req.params.date)
+      if(date!="Invalid Date"){
+      let unix = Date.parse(date)
+      unix = parseInt(unix)
+      const utc = date.toUTCString()
+      res.send({unix  , utc  })
+      res.end()
+      return;
+      }
+      else{
+        res.send({error : "Invalid Date"})
+        res.end()
+        return;
+      }
+    }
+  
+  }
+})
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
